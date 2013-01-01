@@ -11,7 +11,8 @@ import scala.swing.Label
 import scala.swing.TextArea
 import scala.swing.Action
 import scala.swing.event.ButtonClicked
-
+import com.mongodb.DBCollection;
+import com.mongodb.BasicDBObject
 object AwesomeApp extends SimpleSwingApplication {
 
   def createTxt = new TextField {
@@ -21,6 +22,7 @@ object AwesomeApp extends SimpleSwingApplication {
   val eventTxt = createTxt
   val descriptionTxt = createTxArea
   val confirmButton = new Button { text = "Remember" }
+  val viewButton = new Button{text ="View"}
   def top = new MainFrame {
     title = "Hellow World"
     contents = new FlowPanel(
@@ -30,7 +32,10 @@ object AwesomeApp extends SimpleSwingApplication {
   reactions += {
     case e: ButtonClicked => {
       var collection = MongoUtil.getDB().getCollection("inspriations")
-      
+      var bsonobj = new BasicDBObject()
+      bsonobj.append("eventText",eventTxt.text)
+      bsonobj.append("description", descriptionTxt.text)
+      collection.insert(bsonobj)
     }
   }
 
