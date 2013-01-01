@@ -22,20 +22,31 @@ object AwesomeApp extends SimpleSwingApplication {
   val eventTxt = createTxt
   val descriptionTxt = createTxArea
   val confirmButton = new Button { text = "Remember" }
-  val viewButton = new Button{text ="View"}
+  val viewButton = new Button { text = "View" }
   def top = new MainFrame {
     title = "Hellow World"
     contents = new FlowPanel(
-      new Label("Event"), eventTxt, new Label("Description"), descriptionTxt, confirmButton)
+      new Label("Event"), eventTxt, new Label("Description"), descriptionTxt, confirmButton, viewButton)
   }
-  listenTo(confirmButton)
+  listenTo(confirmButton, viewButton)
   reactions += {
     case e: ButtonClicked => {
       var collection = MongoUtil.getDB().getCollection("inspriations")
-      var bsonobj = new BasicDBObject()
-      bsonobj.append("eventText",eventTxt.text)
-      bsonobj.append("description", descriptionTxt.text)
-      collection.insert(bsonobj)
+      if (e.source.equals(viewButton)) {
+        var cursor = collection.find()
+        try {
+        	while(cursor.hasNext()){
+        	  var obj = cursor.next()
+        	  println(obj)
+        	}
+        } finally {
+        	cursor.close()
+        }
+      } else if (e.source.equals(confirmButton)) {
+        var bsonobj = new BasicDBObject("eventText", eventTxt.text)
+        bsonobj.append("description", descriptionTxt.text)
+        collection.insert(bsonobj)
+      }
     }
   }
 
